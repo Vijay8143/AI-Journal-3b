@@ -48,12 +48,6 @@ DATABASE_URL=your_neon_postgres_url
 npm run dev
 ```
 ---
-## Project Status
-Core functionality, including journaling, AI-based processing, and data persistence, has been implemented. The deployment issue is being resolved and will be fixed before 12 PM tomorrow.
----
-## License
-This project is licensed under the MIT License. Feel free to use, modify, and improve it.
----
 ## Author
 Vijay Reddy Goli
 Built with ❤️ using OpenAI API, v0.dev, and Neon (Serverless PostgreSQL)
