@@ -1,30 +1,60 @@
-# Journaling web app
+# 🧠 AI Journal – Daily Thought Tracker & Mood Analyzer
 
-*Automatically synced with your [v0.dev](https://v0.dev) deployments*
+AI Journal is a full-stack journaling web application that allows users to write and save their daily thoughts. Each entry is analyzed using the OpenAI API to automatically generate a brief summary or detect the user's mood. Journal entries are securely stored in a Neon (Serverless PostgreSQL) database and presented in a clean, timeline-style layout so users can reflect on their past writing.
 
-[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/vijayreddygoli630-gmailcoms-projects/v0-journaling-web-app)
-[![Built with v0](https://img.shields.io/badge/Built%20with-v0.dev-black?style=for-the-badge)](https://v0.dev/chat/projects/L7shZHgkG0Q)
+Using v0.dev, I quickly scaffolded the UI and built functional components, which significantly sped up full-stack development. The application demonstrates how easily modern AI tooling can be integrated into a project to provide insightful, real-time feedback on user entries.
 
-## Overview
+## Features
 
-This repository will stay in sync with your deployed chats on [v0.dev](https://v0.dev).
-Any changes you make to your deployed app will be automatically pushed to this repository from [v0.dev](https://v0.dev).
+- **Daily Journaling:** Write and store daily thoughts in a user-friendly editor.
+- **AI Summaries & Mood Analysis:** Automatically generate summaries or detect emotions using the OpenAI API.
+- **Timeline Display:** View all journal entries in a clear timeline format.
+- **Backend Integration:** Securely persists data using Neon (Serverless PostgreSQL).
+- **Rapid Development:** Built with v0.dev for fast, polished, production-ready results.
 
-## Deployment
+## Tech Stack
 
-Your project is live at:
+- **Frontend:** React (scaffolded via [v0.dev](https://v0.dev))
+- **Backend:** Node.js with Express
+- **AI Integration:** OpenAI API for summarization and sentiment analysis
+- **Database:** Neon (Serverless PostgreSQL)
+- **Deployment:** Pending resolution of an issue, expected to be completed by tomorrow before 12 PM
 
-**[https://vercel.com/vijayreddygoli630-gmailcoms-projects/v0-journaling-web-app](https://vercel.com/vijayreddygoli630-gmailcoms-projects/v0-journaling-web-app)**
+## Installation & Setup
 
-## Build your app
+1. **Clone the Repository:**
 
-Continue building your app on:
+   ```bash
+   git clone https://github.com/your-username/ai-journal.git
+   cd ai-journal
+2.Install Dependencies:
 
-**[https://v0.dev/chat/projects/L7shZHgkG0Q](https://v0.dev/chat/projects/L7shZHgkG0Q)**
+```bash
+npm install
+# or
+yarn install
+```
+3.Configure Environment Variables:
 
-## How It Works
+Create a .env file in the root directory:
+```bash
 
-1. Create and modify your project using [v0.dev](https://v0.dev)
-2. Deploy your chats from the v0 interface
-3. Changes are automatically pushed to this repository
-4. Vercel deploys the latest version from this repository
+OPENAI_API_KEY=your_openai_api_key
+DATABASE_URL=your_neon_postgres_url
+```
+---
+4.Run the Development Server:
+```bash
+npm run dev
+```
+---
+## Project Status
+Core functionality, including journaling, AI-based processing, and data persistence, has been implemented. The deployment issue is being resolved and will be fixed before 12 PM tomorrow.
+---
+## License
+This project is licensed under the MIT License. Feel free to use, modify, and improve it.
+---
+## Author
+Vijay Reddy Goli
+Built with ❤️ using OpenAI API, v0.dev, and Neon (Serverless PostgreSQL)
+
