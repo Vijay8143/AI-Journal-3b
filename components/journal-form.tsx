@@ -1,0 +1,104 @@
+"use client"
+
+import type React from "react"
+
+import { useState } from "react"
+import { Button } from "@/components/ui/button"
+import { Textarea } from "@/components/ui/textarea"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { saveJournalEntry } from "@/lib/actions"
+import { Loader2, PenTool, AlertCircle } from "lucide-react"
+import { toast } from "@/hooks/use-toast"
+
+export function JournalForm() {
+  const [content, setContent] = useState("")
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+
+    if (!content.trim()) {
+      toast({
+        title: "Empty entry",
+        description: "Please write something before saving your journal entry.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    setIsSubmitting(true)
+
+    try {
+      console.log("Submitting journal entry...")
+      const result = await saveJournalEntry(content.trim())
+
+      if (result.success) {
+        setContent("")
+        toast({
+          title: "Entry saved! ✨",
+          description: "Your journal entry has been saved and analyzed.",
+        })
+      } else {
+        console.error("Save failed:", result.error)
+        toast({
+          title: "Error",
+          description: result.error || "Failed to save your journal entry.",
+          variant: "destructive",
+        })
+      }
+    } catch (error) {
+      console.error("Unexpected error:", error)
+      toast({
+        title: "Error",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  return (
+    <Card className="w-full max-w-2xl mx-auto">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <PenTool className="w-5 h-5" />
+          Write Your Thoughts
+        </CardTitle>
+        <CardDescription>
+          Share what's on your mind. AI will analyze your entry and detect your mood.
+          {!process.env.NEXT_PUBLIC_OPENAI_AVAILABLE && (
+            <span className="flex items-center gap-1 mt-2 text-amber-600">
+              <AlertCircle className="w-4 h-4" />
+              Using basic analysis (OpenAI not configured)
+            </span>
+          )}
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <Textarea
+            placeholder="Dear journal, today I..."
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            className="min-h-[200px] resize-none"
+            disabled={isSubmitting}
+          />
+          <div className="flex justify-between items-center">
+            <p className="text-sm text-muted-foreground">{content.length} characters</p>
+            <Button type="submit" disabled={isSubmitting || !content.trim()}>
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                "Save Entry"
+              )}
+            </Button>
+          </div>
+        </form>
+      </CardContent>
+    </Card>
+  )
+}
