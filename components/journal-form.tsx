@@ -9,24 +9,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { saveJournalEntry, debugDatabaseState } from "@/lib/actions"
 import { Loader2, PenTool, AlertCircle, Bug } from "lucide-react"
 import { toast } from "@/hooks/use-toast"
+import { useRouter } from "next/navigation"
 
-interface JournalEntry {
-  id: number
-  content: string
-  summary: string
-  mood: string
-  created_at: string
-  user_id: number
-}
-
-interface JournalFormProps {
-  onEntryAdded: (entry: JournalEntry) => void
-}
-
-export function JournalForm({ onEntryAdded }: JournalFormProps) {
+export function JournalForm() {
   const [content, setContent] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isDebugging, setIsDebugging] = useState(false)
+  const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -46,27 +35,24 @@ export function JournalForm({ onEntryAdded }: JournalFormProps) {
       console.log("🚀 Form submitting journal entry...")
       const result = await saveJournalEntry(content.trim())
 
-      if (result.success && result.entry) {
+      if (result.success) {
         console.log("✅ Form received success result:", result)
 
-        // Clear the form
         setContent("")
-
-        // Add the new entry to the timeline immediately
-        onEntryAdded(result.entry)
-
-        // Scroll to timeline after a short delay
-        setTimeout(() => {
-          const timeline = document.querySelector("[data-timeline]")
-          if (timeline) {
-            timeline.scrollIntoView({ behavior: "smooth" })
-          }
-        }, 300)
-
         toast({
           title: "Entry saved! ✨",
-          description: `Your journal entry has been saved and analyzed.`,
+          description: `Your journal entry has been saved and analyzed. Entry ID: ${result.entry?.id}`,
         })
+
+        // Multiple refresh strategies
+        console.log("🔄 Refreshing page...")
+        router.refresh()
+
+        // Force a hard refresh after a delay as fallback
+        setTimeout(() => {
+          console.log("🔄 Hard refresh fallback...")
+          window.location.reload()
+        }, 2000)
       } else {
         console.error("❌ Form received error result:", result.error)
         toast({
