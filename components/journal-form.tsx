@@ -6,13 +6,27 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { saveJournalEntry } from "@/lib/actions"
-import { Loader2, PenTool, AlertCircle } from "lucide-react"
+import { saveJournalEntry, debugDatabaseState } from "@/lib/actions"
+import { Loader2, PenTool, AlertCircle, Bug } from "lucide-react"
 import { toast } from "@/hooks/use-toast"
 
-export function JournalForm() {
+interface JournalEntry {
+  id: number
+  content: string
+  summary: string
+  mood: string
+  created_at: string
+  user_id: number
+}
+
+interface JournalFormProps {
+  onEntryAdded: (entry: JournalEntry) => void
+}
+
+export function JournalForm({ onEntryAdded }: JournalFormProps) {
   const [content, setContent] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isDebugging, setIsDebugging] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -29,17 +43,32 @@ export function JournalForm() {
     setIsSubmitting(true)
 
     try {
-      console.log("Submitting journal entry...")
+      console.log("🚀 Form submitting journal entry...")
       const result = await saveJournalEntry(content.trim())
 
-      if (result.success) {
+      if (result.success && result.entry) {
+        console.log("✅ Form received success result:", result)
+
+        // Clear the form
         setContent("")
+
+        // Add the new entry to the timeline immediately
+        onEntryAdded(result.entry)
+
+        // Scroll to timeline after a short delay
+        setTimeout(() => {
+          const timeline = document.querySelector("[data-timeline]")
+          if (timeline) {
+            timeline.scrollIntoView({ behavior: "smooth" })
+          }
+        }, 300)
+
         toast({
           title: "Entry saved! ✨",
-          description: "Your journal entry has been saved and analyzed.",
+          description: `Your journal entry has been saved and analyzed.`,
         })
       } else {
-        console.error("Save failed:", result.error)
+        console.error("❌ Form received error result:", result.error)
         toast({
           title: "Error",
           description: result.error || "Failed to save your journal entry.",
@@ -47,7 +76,7 @@ export function JournalForm() {
         })
       }
     } catch (error) {
-      console.error("Unexpected error:", error)
+      console.error("💥 Form submission error:", error)
       toast({
         title: "Error",
         description: "Something went wrong. Please try again.",
@@ -55,6 +84,28 @@ export function JournalForm() {
       })
     } finally {
       setIsSubmitting(false)
+    }
+  }
+
+  const handleDebug = async () => {
+    setIsDebugging(true)
+    try {
+      const debugResult = await debugDatabaseState()
+      console.log("🔧 Debug result:", debugResult)
+
+      toast({
+        title: "Debug Complete",
+        description: "Check the browser console for detailed debug information.",
+      })
+    } catch (error) {
+      console.error("Debug error:", error)
+      toast({
+        title: "Debug Error",
+        description: "Failed to run debug. Check console for details.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsDebugging(false)
     }
   }
 
@@ -85,7 +136,22 @@ export function JournalForm() {
             disabled={isSubmitting}
           />
           <div className="flex justify-between items-center">
-            <p className="text-sm text-muted-foreground">{content.length} characters</p>
+            <div className="flex items-center gap-2">
+              <p className="text-sm text-muted-foreground">{content.length} characters</p>
+              <Button type="button" variant="outline" size="sm" onClick={handleDebug} disabled={isDebugging}>
+                {isDebugging ? (
+                  <>
+                    <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                    Debug
+                  </>
+                ) : (
+                  <>
+                    <Bug className="w-3 h-3 mr-1" />
+                    Debug
+                  </>
+                )}
+              </Button>
+            </div>
             <Button type="submit" disabled={isSubmitting || !content.trim()}>
               {isSubmitting ? (
                 <>

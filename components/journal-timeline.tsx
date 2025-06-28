@@ -1,7 +1,22 @@
-import { getJournalEntries } from "@/lib/actions"
+"use client"
+
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Calendar, Heart, Brain } from "lucide-react"
+import { TimelineRefreshButton } from "./timeline-refresh-button"
+
+interface JournalEntry {
+  id: number
+  content: string
+  summary: string
+  mood: string
+  created_at: string
+  user_id: number
+}
+
+interface JournalTimelineProps {
+  entries: JournalEntry[]
+}
 
 const moodColors = {
   happy: "bg-yellow-100 text-yellow-800 border-yellow-200",
@@ -28,36 +43,51 @@ function formatDate(dateString: string) {
   })
 }
 
-export async function JournalTimeline() {
-  const entries = await getJournalEntries()
+export function JournalTimeline({ entries }: JournalTimelineProps) {
+  console.log("📊 Timeline rendering with entries:", entries.length)
 
   if (entries.length === 0) {
     return (
-      <div className="w-full max-w-2xl mx-auto text-center py-12">
-        <div className="text-muted-foreground">
-          <Calendar className="w-12 h-12 mx-auto mb-4 opacity-50" />
-          <h3 className="text-lg font-medium mb-2">No entries yet</h3>
-          <p>Start journaling to see your thoughts and moods over time.</p>
+      <div className="w-full max-w-2xl mx-auto" data-timeline>
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-2">
+            <Calendar className="w-5 h-5" />
+            <h2 className="text-xl font-semibold">Your Journal Timeline</h2>
+          </div>
+          <TimelineRefreshButton />
+        </div>
+
+        <div className="text-center py-12">
+          <div className="text-muted-foreground">
+            <Calendar className="w-12 h-12 mx-auto mb-4 opacity-50" />
+            <h3 className="text-lg font-medium mb-2">No entries yet</h3>
+            <p>Start journaling to see your thoughts and moods over time.</p>
+          </div>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="w-full max-w-2xl mx-auto space-y-6">
-      <div className="flex items-center gap-2 mb-6">
-        <Calendar className="w-5 h-5" />
-        <h2 className="text-xl font-semibold">Your Journal Timeline</h2>
+    <div className="w-full max-w-2xl mx-auto space-y-6" data-timeline>
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-2">
+          <Calendar className="w-5 h-5" />
+          <h2 className="text-xl font-semibold">Your Journal Timeline</h2>
+          <span className="text-sm text-muted-foreground">({entries.length} entries)</span>
+        </div>
+        <TimelineRefreshButton />
       </div>
 
       <div className="space-y-4">
-        {entries.map((entry: any) => (
-          <Card key={entry.id} className="relative">
+        {entries.map((entry: JournalEntry, index: number) => (
+          <Card key={`${entry.id}-${index}`} className="relative animate-in fade-in-50 duration-300">
             <CardHeader className="pb-3">
               <div className="flex items-start justify-between">
                 <CardDescription className="flex items-center gap-2">
                   <Calendar className="w-4 h-4" />
                   {formatDate(entry.created_at)}
+                  <span className="text-xs opacity-50">ID: {entry.id}</span>
                 </CardDescription>
                 <Badge
                   variant="outline"
