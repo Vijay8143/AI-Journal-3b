@@ -1,8 +1,22 @@
-import { getJournalEntries } from "@/lib/actions"
+"use client"
+
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Calendar, Heart, Brain, AlertCircle } from "lucide-react"
+import { Calendar, Heart, Brain } from "lucide-react"
 import { TimelineRefreshButton } from "./timeline-refresh-button"
+
+interface JournalEntry {
+  id: number
+  content: string
+  summary: string
+  mood: string
+  created_at: string
+  user_id: number
+}
+
+interface JournalTimelineProps {
+  entries: JournalEntry[]
+}
 
 const moodColors = {
   happy: "bg-yellow-100 text-yellow-800 border-yellow-200",
@@ -29,45 +43,8 @@ function formatDate(dateString: string) {
   })
 }
 
-export async function JournalTimeline() {
-  console.log("🎬 JournalTimeline component rendering...")
-
-  let entries: any[] = []
-  let fetchError: string | null = null
-
-  try {
-    entries = await getJournalEntries()
-    console.log("📊 Timeline received entries:", entries.length)
-  } catch (err) {
-    console.error("💥 Timeline fetch failed:", err)
-    fetchError = err instanceof Error ? err.message : "Unknown error"
-    entries = []
-  }
-
-  if (fetchError) {
-    return (
-      <div className="w-full max-w-2xl mx-auto" data-timeline>
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-2">
-            <Calendar className="w-5 h-5" />
-            <h2 className="text-xl font-semibold">Your Journal Timeline</h2>
-          </div>
-          <TimelineRefreshButton />
-        </div>
-
-        <Card className="border-red-200 bg-red-50">
-          <CardContent className="p-6 text-center">
-            <div className="text-red-600">
-              <AlertCircle className="w-12 h-12 mx-auto mb-4" />
-              <h3 className="text-lg font-medium mb-2">Error Loading Timeline</h3>
-              <p className="text-sm">{fetchError}</p>
-              <p className="text-xs mt-2 text-red-500">Check the browser console for more details.</p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    )
-  }
+export function JournalTimeline({ entries }: JournalTimelineProps) {
+  console.log("📊 Timeline rendering with entries:", entries.length)
 
   if (entries.length === 0) {
     return (
@@ -85,7 +62,6 @@ export async function JournalTimeline() {
             <Calendar className="w-12 h-12 mx-auto mb-4 opacity-50" />
             <h3 className="text-lg font-medium mb-2">No entries yet</h3>
             <p>Start journaling to see your thoughts and moods over time.</p>
-            <p className="text-xs mt-2 opacity-75">If you just saved an entry, try refreshing the page.</p>
           </div>
         </div>
       </div>
@@ -104,8 +80,8 @@ export async function JournalTimeline() {
       </div>
 
       <div className="space-y-4">
-        {entries.map((entry: any, index: number) => (
-          <Card key={`${entry.id}-${index}`} className="relative">
+        {entries.map((entry: JournalEntry, index: number) => (
+          <Card key={`${entry.id}-${index}`} className="relative animate-in fade-in-50 duration-300">
             <CardHeader className="pb-3">
               <div className="flex items-start justify-between">
                 <CardDescription className="flex items-center gap-2">

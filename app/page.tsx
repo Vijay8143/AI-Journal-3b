@@ -1,13 +1,12 @@
 import { getCurrentUser } from "@/lib/auth"
+import { getJournalEntries } from "@/lib/actions"
 import { AuthForm } from "@/components/auth-form"
 import { UserHeader } from "@/components/user-header"
-import { JournalForm } from "@/components/journal-form"
-import { JournalTimeline } from "@/components/journal-timeline"
-import { Separator } from "@/components/ui/separator"
+import { JournalApp } from "@/components/journal-app"
 import { BookOpen } from "lucide-react"
 
-export const dynamic = "force-static" // let Next cache & re-validate
-export const revalidate = 0 // always fresh for each user
+export const dynamic = "force-dynamic"
+export const revalidate = 0
 
 export default async function Home() {
   const user = await getCurrentUser()
@@ -29,10 +28,9 @@ export default async function Home() {
             </p>
           </header>
 
-          {/* AuthForm is a client component */}
           <AuthForm
             onSuccess={() => {
-              /* router.refresh() inside AuthForm */
+              window.location.reload()
             }}
           />
         </div>
@@ -41,6 +39,9 @@ export default async function Home() {
   }
 
   /* -------------------------------- authenticated ------------------------ */
+  // Fetch initial entries on server
+  const initialEntries = await getJournalEntries()
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       <div className="container mx-auto px-4 py-8 space-y-8">
@@ -56,15 +57,10 @@ export default async function Home() {
           </p>
         </header>
 
-        {/* server + client hybrid modules */}
         <UserHeader />
-        <JournalForm />
 
-        <div className="flex items-center justify-center">
-          <Separator className="max-w-xs" />
-        </div>
-
-        <JournalTimeline />
+        {/* Client component that manages entries state */}
+        <JournalApp initialEntries={initialEntries} />
       </div>
     </div>
   )
